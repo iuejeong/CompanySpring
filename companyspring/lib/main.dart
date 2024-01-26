@@ -1,16 +1,25 @@
+import 'package:companyspring/pages/registerPage.dart';
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(MaterialApp(
+  runApp(
+    MaterialApp(
     initialRoute: '/companyspring/signIn',
     routes: {
       '/companyspring/signIn': (context) => const LoginPage(),
+      '/companyspring/signUp': (context) => const RegisterPage(),
     },
   ));
 }
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
@@ -19,11 +28,7 @@ class LoginPage extends StatelessWidget {
 
     return SafeArea(
       child: Scaffold(
-          body: GestureDetector(
-        onTap: () {
-          FocusScope.of(context).unfocus();
-        },
-        child: Container(
+        body: Container(
           width: screenWidth,
           height: screenHeight,
           decoration: BoxDecoration(
@@ -108,33 +113,81 @@ class LoginPage extends StatelessWidget {
                     width: 30,
                   ),
                   Container(
-                      width: 240, // 넓이를 원하는 값으로 설정
-                      child: TextField(
-                        decoration: InputDecoration(
-                          labelText: '비밀번호 입력',
-                          labelStyle: TextStyle(
-                            color: Colors.grey.withOpacity(0.7),
-                            fontSize: 14,
-                          ),
-                          contentPadding:
-                              EdgeInsets.only(bottom: 10), // 아래 방향으로만 패딩을 줍니다.
-                          enabledBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(
-                                color: Colors.grey
-                                    .withOpacity(0.7)), // 비활성화된 상태일 때의 밑줄 색상
-                          ),
-                          focusedBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(
-                                color: Colors.blue), // 활성화된 상태일 때의 밑줄 색상
-                          ),
+                    width: 240, // 넓이를 원하는 값으로 설정
+                    child: TextField(
+                      decoration: InputDecoration(
+                        labelText: '비밀번호 입력',
+                        labelStyle: TextStyle(
+                          color: Colors.grey.withOpacity(0.7),
+                          fontSize: 14,
                         ),
-                      ))
+                        contentPadding:
+                            EdgeInsets.only(bottom: 10), // 아래 방향으로만 패딩을 줍니다.
+                        enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(
+                              color: Colors.grey
+                                  .withOpacity(0.7)), // 비활성화된 상태일 때의 밑줄 색상
+                        ),
+                        focusedBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(
+                              color: Colors.blue), // 활성화된 상태일 때의 밑줄 색상
+                        ),
+                      ),
+                    ),
+                  )
+                ],
+              ),
+              SizedBox(
+                height: 50,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 150,
+                    height: 60,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.lightGreen),
+                      onPressed: () {},
+                      child: Text(
+                        '로그인',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 20,
+                  ),
+                  Container(
+                  width: 150,
+                  height: 60,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.lime),
+                      onPressed: () {
+                      Navigator.pushNamed(
+                      context, '/companyspring/signUp'
+                    );
+                      },
+                      child: Text(
+                        '회원가입',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ],
           ),
         ),
-      )),
+      ),
     );
   }
 }
