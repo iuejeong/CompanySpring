@@ -1,13 +1,17 @@
+import 'package:companyspring/pages/mainPage.dart';
 import 'package:companyspring/pages/registerPage.dart';
 import 'package:flutter/material.dart';
 
+final navigatorKey = GlobalKey<NavigatorState>();
+
 void main() {
-  runApp(
-    MaterialApp(
+  runApp(MaterialApp(
     initialRoute: '/companyspring/signIn',
+    navigatorKey: navigatorKey,
     routes: {
       '/companyspring/signIn': (context) => const LoginPage(),
       '/companyspring/signUp': (context) => const RegisterPage(),
+      '/companyspring/main': (context) => const MainPage(),
     },
   ));
 }
@@ -20,7 +24,6 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -149,7 +152,9 @@ class _LoginPageState extends State<LoginPage> {
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.lightGreen),
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/companyspring/main');
+                      },
                       child: Text(
                         '로그인',
                         style: TextStyle(
@@ -163,15 +168,13 @@ class _LoginPageState extends State<LoginPage> {
                     width: 20,
                   ),
                   Container(
-                  width: 150,
-                  height: 60,
+                    width: 150,
+                    height: 60,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.lime),
                       onPressed: () {
-                      Navigator.pushNamed(
-                      context, '/companyspring/signUp'
-                    );
+                        Navigator.pushNamed(context, '/companyspring/signUp');
                       },
                       child: Text(
                         '회원가입',

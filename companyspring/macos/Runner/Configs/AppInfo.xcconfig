@@ -8,7 +8,7 @@
 PRODUCT_NAME = companyspring
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.example.companyspring
+PRODUCT_BUNDLE_IDENTIFIER = com.uhjung.companyspring
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2024 com.example. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2024 com.uhjung. All rights reserved.
