@@ -1,34 +1,23 @@
 import 'package:companyspring/database/databaseConfig.dart';
-import 'package:companyspring/database/word.dart';
+import 'package:companyspring/database/user.dart';
+import 'package:companyspring/main.dart';
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 
-class MainPage extends StatelessWidget {
+class MainPage extends StatefulWidget {
   const MainPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: HomePage(),
-    );
-  }
+  State<MainPage> createState() => _MainPageState();
 }
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
-
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
+class _MainPageState extends State<MainPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _meaningController = TextEditingController();
   final DatabaseService _databaseService = DatabaseService();
-  Future<List<Word>> _wordList = DatabaseService()
+  Future<List<User>> _userList = DatabaseService()
       .databaseConfig()
-      .then((_) => DatabaseService().selectWords());
+      .then((_) => DatabaseService().selectUsers());
   int currentCount = 0;
 
   @override
@@ -38,60 +27,84 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (context) => addWordDialog(context),
-          );
-        },
-        child: const Icon(
-          Icons.add,
+
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+    
+    return SafeArea(
+      child: Scaffold(
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (context) => addUserDialog(context),
+            );
+          },
+          child: const Icon(
+            Icons.add,
+          ),
         ),
-      ),
-      body: Container(
-        padding: const EdgeInsets.all(10),
-        child: FutureBuilder(
-          future: _wordList,
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              currentCount = snapshot.data!.length;
-              if (currentCount == 0) {
+        appBar: AppBar(
+          backgroundColor: Colors.transparent, // AppBar의 배경색을 투명하게 설정
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.pushNamed(context, '/companyspring/signIn');
+            },
+          ),
+        ),
+        extendBodyBehindAppBar: true,
+        body: Container(
+          width: screenWidth,
+          height: screenHeight,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/login_background.jpg'),
+              fit: BoxFit.cover,
+            ),
+          ),          
+          padding: const EdgeInsets.all(10),
+          child: FutureBuilder(
+            future: _userList,
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                currentCount = snapshot.data!.length;
+                if (currentCount == 0) {
+                  return const Center(
+                    child: Text("방 없음"),
+                  );
+                } else {
+                  return ListView.builder(
+                    itemCount: snapshot.data!.length,
+                    itemBuilder: (context, index) {
+                      return userBox(
+                        snapshot.data![index].idx,
+                        snapshot.data![index].userId,
+                        snapshot.data![index].password,
+                      );
+                    },
+                  );
+                }
+              } else if (snapshot.hasError) {
                 return const Center(
-                  child: Text("No data exists"),
+                  child: Text("Error."),
                 );
               } else {
-                return ListView.builder(
-                  itemCount: snapshot.data!.length,
-                  itemBuilder: (context, index) {
-                    return wordBox(
-                      snapshot.data![index].id,
-                      snapshot.data![index].name,
-                      snapshot.data![index].meaning,
-                    );
-                  },
+                return const Center(
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                  ),
                 );
               }
-            } else if (snapshot.hasError) {
-              return const Center(
-                child: Text("Error."),
-              );
-            } else {
-              return const Center(
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                ),
-              );
-            }
-          },
+            },
+          ),
         ),
       ),
     );
   }
 
-  Widget wordBox(int id, String name, String meaning) {
+  Widget userBox(int id, String name, String meaning) {
     return Row(
       children: [
         Container(
@@ -100,11 +113,11 @@ class _HomePageState extends State<HomePage> {
         ),
         Container(
           padding: const EdgeInsets.all(15),
-          child: Text("$name"),
+          child: Text(name),
         ),
         Container(
           padding: const EdgeInsets.all(15),
-          child: Text("$meaning"),
+          child: Text(meaning),
         ),
         Expanded(
           child: Row(
@@ -125,11 +138,11 @@ class _HomePageState extends State<HomePage> {
   Widget updateButton(int id) {
     return ElevatedButton(
         onPressed: () {
-          Future<Word> word = _databaseService.selectWord(id);
+          Future<User> user = _databaseService.selectUser(id);
           showDialog(
             context: context,
             barrierDismissible: false,
-            builder: (context) => updateWordDialog(word, context),
+            builder: (context) => updateUserDialog(user, context),
           );
         },
         style: ButtonStyle(
@@ -143,7 +156,7 @@ class _HomePageState extends State<HomePage> {
       onPressed: () => showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (context) => deleteWordDialog(id, context),
+        builder: (context) => deleteUserDialog(id, context),
       ),
       style: ButtonStyle(
         backgroundColor: MaterialStateProperty.all(Colors.red),
@@ -152,7 +165,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget addWordDialog(context) {
+  Widget addUserDialog(context) {
     return AlertDialog(
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -186,15 +199,16 @@ class _HomePageState extends State<HomePage> {
           ElevatedButton(
             onPressed: () {
               _databaseService
-                  .insertWord(Word(
-                      id: currentCount + 1,
-                      name: _nameController.text,
-                      meaning: _meaningController.text))
+                  .insertUser(User(
+                      idx: currentCount + 1,
+                      userId: _nameController.text,
+                      password: _meaningController.text,
+                      nickname: _meaningController.text,))
                   .then((result) {
                 if (result) {
                   Navigator.of(context).pop();
                   setState(() {
-                    _wordList = _databaseService.selectWords();
+                    _userList = _databaseService.selectUsers();
                   });
                 } else {
                   print("insert Error");
@@ -208,7 +222,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget updateWordDialog(Future<Word> word, BuildContext context) {
+  Widget updateUserDialog(Future<User> user, BuildContext context) {
     return AlertDialog(
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -221,11 +235,11 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       content: FutureBuilder(
-        future: word,
+        future: user,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            _nameController.text = snapshot.data!.name;
-            _meaningController.text = snapshot.data!.meaning;
+            _nameController.text = snapshot.data!.userId;
+            _meaningController.text = snapshot.data!.password;
             return Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -246,16 +260,17 @@ class _HomePageState extends State<HomePage> {
                 ElevatedButton(
                   onPressed: () {
                     _databaseService
-                        .updateWord(Word(
-                            id: snapshot.data!.id,
-                            name: _nameController.text,
-                            meaning: _meaningController.text))
+                        .updateUser(User(
+                            idx: snapshot.data!.idx,
+                            userId: _nameController.text,
+                            password: _meaningController.text,
+                            nickname: _meaningController.text))
                         .then(
                       (result) {
                         if (result) {
                           Navigator.of(context).pop();
                           setState(() {
-                            _wordList = _databaseService.selectWords();
+                            _userList = _databaseService.selectUsers();
                           });
                         } else {
                           print("update Error");
@@ -283,7 +298,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget deleteWordDialog(int id, BuildContext context) {
+  Widget deleteUserDialog(int id, BuildContext context) {
     return AlertDialog(
       title: const Text("이 방을 삭제하시겠습니까?"),
       content: Column(
@@ -294,11 +309,11 @@ class _HomePageState extends State<HomePage> {
             children: [
               ElevatedButton(
                 onPressed: () {
-                  _databaseService.deleteWord(id).then((result) {
+                  _databaseService.deleteUser(id).then((result) {
                     if (result) {
                       Navigator.of(context).pop();
                       setState(() {
-                        _wordList = _databaseService.selectWords();
+                        _userList = _databaseService.selectUsers();
                       });
                     } else {
                       print("delete Error");

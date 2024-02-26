@@ -1,4 +1,4 @@
-import 'package:companyspring/database/word.dart';
+import 'package:companyspring/database/user.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -9,33 +9,36 @@ class DatabaseService {
   factory DatabaseService() => _database;
 
   DatabaseService._internal() {
-    databaseConfig();
+    database = databaseConfig();
   }
 
-  Future<bool> databaseConfig() async {
+  Future<Database> databaseConfig() async {
     try {
-      database = openDatabase(
-        join(await getDatabasesPath(), 'db.oooaqnwunefrpgdnvtnk.supabase.co'),
-        onCreate: (db, version) {
-          return db.execute(
-            'CREATE TABLE words(id INTEGER PRIMARY KEY, name TEXT, meaning TEXT)',
+      final db = await openDatabase(
+        join(await getDatabasesPath(), 'companyspring.db'),
+        onCreate: (db, version) async {
+          await db.execute(
+            'CREATE TABLE COMPANYSPRING_USER_MST(idx INTEGER PRIMARY KEY, user_id TEXT, password TEXT, nickname TEXT)',
+          );
+          await db.execute(
+            'CREATE TABLE COMPANYSPRING_ROOM_MST(room_id INTEGER PRIMARY KEY, room_name TEXT)',
           );
         },
         version: 1,
       );
-      return true;
+      return db;
     } catch (err) {
       print(err.toString());
-      return false;
+      rethrow;
     }
   }
 
-  Future<bool> insertWord(Word word) async {
+  Future<bool> insertUser(User user) async {
     final Database db = await database;
     try {
       db.insert(
-        'words',
-        word.toMap(),
+        'COMPANYSPRING_USER_MST',
+        user.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
       return true;
@@ -44,36 +47,61 @@ class DatabaseService {
     }
   }
 
-  Future<List<Word>> selectWords() async {
+  Future<List<User>> selectUsers() async {
     final Database db = await database;
-    final List<Map<String, dynamic>> data = await db.query('words');
+    final List<Map<String, dynamic>> data = await db.query('COMPANYSPRING_USER_MST');
 
     return List.generate(data.length, (i) {
-      return Word(
-        id: data[i]['id'],
-        name: data[i]['name'],
-        meaning: data[i]['meaning'],
+      return User(
+        idx: data[i]['idx'],
+        userId: data[i]['user_id'],
+        password: data[i]['password'],
+        nickname: data[i]['nickname'],
       );
     });
   }
 
-  Future<Word> selectWord(int id) async {
+    Future<bool> selectDupUser(String userId) async {
     final Database db = await database;
     final List<Map<String, dynamic>> data =
-        await db.query('words', where: "id = ?", whereArgs: [id]);
-
-    return Word(
-      id: data[0]['id'], name: data[0]['name'], meaning: data[0]['meaning']);
+        await db.query('COMPANYSPRING_USER_MST', where: "user_id = ?", whereArgs: [userId]);
+        
+        if(data.isEmpty) {
+          return true;
+        }else {
+          return false;
+        }
   }
 
-  Future<bool> updateWord(Word word) async {
+    Future<bool> selectDupNickname(String nickname) async {
+    final Database db = await database;
+    final List<Map<String, dynamic>> data =
+        await db.query('COMPANYSPRING_USER_MST', where: "nickname = ?", whereArgs: [nickname]);
+        
+        if(data.isEmpty) {
+          return true;
+        }else {
+          return false;
+        }
+  }
+
+  Future<User> selectUser(int id) async {
+    final Database db = await database;
+    final List<Map<String, dynamic>> data =
+        await db.query('COMPANYSPRING_USER_MST', where: "user_id = ?", whereArgs: [id]);
+
+    return User(
+      idx: data[0]['idx'], userId: data[0]['user_id'], password: data[0]['password'], nickname: data[0]['nickname']);
+  }
+
+  Future<bool> updateUser(User user) async {
     final Database db = await database;
     try {
       db.update(
-        'words',
-        word.toMap(),
-        where: "id = ?",
-        whereArgs: [word.id],
+        'COMPANYSPRING_USER_MST',
+        user.toMap(),
+        where: "user_id = ?",
+        whereArgs: [user.userId],
         );
         return true;
     } catch (err) {
@@ -81,13 +109,13 @@ class DatabaseService {
     }
   }
 
-  Future<bool> deleteWord(int id) async {
+  Future<bool> deleteUser(int id) async {
     final Database db = await database;
 
     try {
       db.delete(
-        'words',
-        where: "id = ?",
+        'COMPANYSPRING_USER_MST',
+        where: "user_id = ?",
         whereArgs: [id],
         );
         return true;

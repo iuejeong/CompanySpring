@@ -17,7 +17,7 @@ void main() {
 }
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+  const LoginPage({Key? key}) : super(key: key);
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -26,6 +26,7 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
+    
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
 
@@ -77,7 +78,7 @@ class _LoginPageState extends State<LoginPage> {
                   SizedBox(
                     width: 30,
                   ),
-                  Container(
+                  SizedBox(
                       width: 240, // 넓이를 원하는 값으로 설정
                       child: TextField(
                         decoration: InputDecoration(
@@ -115,7 +116,7 @@ class _LoginPageState extends State<LoginPage> {
                   SizedBox(
                     width: 30,
                   ),
-                  Container(
+                  SizedBox(
                     width: 240, // 넓이를 원하는 값으로 설정
                     child: TextField(
                       decoration: InputDecoration(
@@ -146,7 +147,7 @@ class _LoginPageState extends State<LoginPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
+                  SizedBox(
                     width: 150,
                     height: 60,
                     child: ElevatedButton(
@@ -167,7 +168,7 @@ class _LoginPageState extends State<LoginPage> {
                   SizedBox(
                     width: 20,
                   ),
-                  Container(
+                  SizedBox(
                     width: 150,
                     height: 60,
                     child: ElevatedButton(
