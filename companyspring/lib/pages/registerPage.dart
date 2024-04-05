@@ -1,6 +1,7 @@
 import 'package:companyspring/database/databaseConfig.dart';
 import 'package:companyspring/database/user.dart';
 import 'package:flutter/material.dart';
+import 'package:mysql_client/mysql_client.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -19,7 +20,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final Future<List<User>> _userList = DatabaseService()
     .databaseConfig()
     .then((_) => DatabaseService().selectUsers());
-
+  MySQLConnection db = DatabaseService().connection;
   bool userIdFlag = false;
   bool nicknameFlag = false;
 
@@ -43,7 +44,7 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
-
+    
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -51,7 +52,7 @@ class _RegisterPageState extends State<RegisterPage> {
           leading: IconButton(
             icon: Icon(Icons.arrow_back),
             onPressed: () {
-              Navigator.pushNamed(context, '/companyspring/signIn');
+              Navigator.pushNamed(context, '/companyspring/login');
             },
           ),
         ),
@@ -484,7 +485,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                       TextButton(
                                         onPressed: () {
                                           Navigator.of(context).pop();
-                                          Navigator.pushNamed(context, '/companyspring/signIn');
+                                          Navigator.pushNamed(context, '/companyspring/login');
                                         },
                                         child: Text("확인"),
                                       ),

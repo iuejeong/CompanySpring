@@ -50,7 +50,7 @@ class _MainPageState extends State<MainPage> {
           leading: IconButton(
             icon: Icon(Icons.arrow_back),
             onPressed: () {
-              Navigator.pushNamed(context, '/companyspring/signIn');
+              Navigator.pushNamed(context, '/companyspring/login');
             },
           ),
         ),

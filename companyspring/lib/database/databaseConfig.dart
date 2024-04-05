@@ -1,12 +1,18 @@
 import 'package:companyspring/database/user.dart';
+import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:mysql_client/mysql_client.dart';
 
 class DatabaseService {
+  // 전역 변수로 연결 객체 선언
+  late MySQLConnection _conn;
+  MySQLConnection get connection => _conn;
+  
   static final DatabaseService _database = DatabaseService._internal();
   late Future<Database> database;
-
   factory DatabaseService() => _database;
+
 
   DatabaseService._internal() {
     database = databaseConfig();
@@ -123,5 +129,29 @@ class DatabaseService {
         return false;
     }
   }
+  Future<MySQLConnection> dbConnector() async {
+    print("Connecting to MySQL server...");
+
+    // MySQL 접속 설정
+    final conn = await MySQLConnection.createConnection(
+      host: "10.0.2.2", // 안드로이드 에뮬레이터 실행 시 host: "10.0.2.2"
+      port: 3306,
+      userName: "root",
+      password: "root",
+      databaseName: 'companyspring', // optional
+    );
+
+    print("Connected");
+
+    await conn.connect();
+
+    return conn;
+  }
+
+
+  Future<void> closeConnection() async {
+    await _conn.close();
+    print("Connection closed");
+    }
 
 }
